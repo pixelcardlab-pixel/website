@@ -7,6 +7,7 @@ import { ItemDetailActions } from "@/components/shop/item-detail-actions";
 import { ItemDetailShell } from "@/components/shop/item-detail-shell";
 
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 export default async function ItemDetailPage({ params }) {
   const data = await getStorefrontData();

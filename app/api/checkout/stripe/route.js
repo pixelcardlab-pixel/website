@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+
+export const runtime = "edge";
 
 const SHIPPING_OPTIONS = {
   nationwide: {
@@ -22,9 +23,20 @@ const SHIPPING_OPTIONS = {
   }
 };
 
+function appendLineItem(params, index, item) {
+  params.append(`line_items[${index}][quantity]`, String(item.quantity));
+  params.append(`line_items[${index}][price_data][currency]`, "usd");
+  params.append(`line_items[${index}][price_data][unit_amount]`, String(Math.round(item.unitAmount * 100)));
+  params.append(`line_items[${index}][price_data][product_data][name]`, item.name);
+  if (item.description) {
+    params.append(`line_items[${index}][price_data][product_data][description]`, item.description);
+  }
+}
+
 export async function POST(request) {
   try {
-    if (!process.env.STRIPE_SECRET_KEY) {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
       return NextResponse.json(
         {
           error:
@@ -43,63 +55,62 @@ export async function POST(request) {
       return NextResponse.json({ error: "No cart items found." }, { status: 400 });
     }
 
-    const lineItems = rawItems
+    const items = rawItems
       .filter((item) => item && typeof item.name === "string")
-      .map((item) => {
-        const quantity = Math.max(1, Math.floor(Number(item.quantity) || 1));
-        const unitPrice = Math.max(0, Number(item.price) || 0);
+      .map((item) => ({
+        quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
+        unitAmount: Math.max(0, Number(item.price) || 0),
+        name: item.name,
+        description: `${item.set || "Trade Me"} • ${item.rarity || "Listing"}`
+      }));
 
-        return {
-          quantity,
-          price_data: {
-            currency: "usd",
-            unit_amount: Math.round(unitPrice * 100),
-            product_data: {
-              name: item.name,
-              description: `${item.set || "Trade Me"} • ${item.rarity || "Listing"}`
-            }
-          }
-        };
-      });
-
-    if (!lineItems.length) {
+    if (!items.length) {
       return NextResponse.json({ error: "No valid items in cart." }, { status: 400 });
     }
 
     if (selectedShipping.amount > 0) {
-      lineItems.push({
+      items.push({
         quantity: 1,
-        price_data: {
-          currency: "usd",
-          unit_amount: Math.round(selectedShipping.amount * 100),
-          product_data: {
-            name: `Shipping - ${selectedShipping.label}`,
-            description: selectedShipping.description
-          }
-        }
+        unitAmount: selectedShipping.amount,
+        name: `Shipping - ${selectedShipping.label}`,
+        description: selectedShipping.description
       });
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const origin =
       request.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: lineItems,
-      metadata: {
-        shipping_option: selectedShipping.label,
-        shipping_cost: selectedShipping.amount ? selectedShipping.amount.toFixed(2) : "0.00",
-        pickup_note:
-          selectedShipping.id === "pickup"
-            ? "Pickup is available from Auckland CBD (weekdays 9.30am till 6pm)."
-            : ""
+    const params = new URLSearchParams();
+    params.append("mode", "payment");
+    params.append("success_url", `${origin}/order-success?order={CHECKOUT_SESSION_ID}`);
+    params.append("cancel_url", `${origin}/checkout`);
+    params.append("metadata[shipping_option]", selectedShipping.label);
+    params.append("metadata[shipping_cost]", selectedShipping.amount ? selectedShipping.amount.toFixed(2) : "0.00");
+    params.append(
+      "metadata[pickup_note]",
+      selectedShipping.id === "pickup"
+        ? "Pickup is available from Auckland CBD (weekdays 9.30am till 6pm)."
+        : ""
+    );
+
+    items.forEach((item, index) => appendLineItem(params, index, item));
+
+    const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${secretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded"
       },
-      success_url: `${origin}/order-success?order={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/checkout`
+      body: params.toString()
     });
 
-    return NextResponse.json({ url: session.url });
+    const stripeData = await stripeResponse.json();
+    if (!stripeResponse.ok) {
+      const stripeMessage = stripeData?.error?.message || "Stripe checkout failed.";
+      return NextResponse.json({ error: stripeMessage }, { status: stripeResponse.status });
+    }
+
+    return NextResponse.json({ url: stripeData?.url || null });
   } catch (error) {
     return NextResponse.json({ error: error.message || "Stripe checkout failed." }, { status: 500 });
   }
