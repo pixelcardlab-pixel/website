@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ProductCard } from "@/components/shop/product-card";
 import { CartPanel } from "@/components/shop/cart-panel";
+import { FounderNote } from "@/components/shop/founder-note";
 import { useCart } from "@/components/providers/cart-provider";
 import { FAVORITES_KEY } from "@/lib/storage";
 
@@ -70,7 +71,9 @@ export function ShopClient({ products, recommendations, testimonials, syncInfo }
     <div className="page-wrap">
       <header className="topbar glass reveal">
         <div className="brand">
-          <Image src="/pixel-card-lab-logo.png" alt="Pixel Card Lab" width={220} height={62} priority />
+          <Link href="/" aria-label="Go to homepage">
+            <Image src="/pixel-card-lab-logo.png" alt="Pixel Card Lab" width={220} height={62} priority />
+          </Link>
         </div>
         <div className="topbar-right">
           <nav className="nav-links">
@@ -118,7 +121,7 @@ export function ShopClient({ products, recommendations, testimonials, syncInfo }
               <button type="submit">Search</button>
             </form>
           </div>
-          <p className="hero-proof">99.9% positive feedback • 784 positive trades (Trademe)</p>
+          <p className="hero-proof">NZ-based seller  ✦  Ships from Auckland  ✦  Trusted by collectors</p>
           {syncInfo?.warning ? <p className="sync-warning">{syncInfo.warning}</p> : null}
         </div>
       </section>
@@ -180,6 +183,7 @@ export function ShopClient({ products, recommendations, testimonials, syncInfo }
           ))}
         </div>
       </section>
+      <FounderNote />
 
       <footer className="footer reveal">
         <div>

@@ -32,7 +32,7 @@ export function CartPanel() {
               <div className="cart-item-content">
                 <div className="cart-item-head">
                   <p>{item.name}</p>
-                  <small>{item.rarity}</small>
+                  {item.rarity && item.rarity.toLowerCase() !== "marketplace listing" ? <small>{item.rarity}</small> : null}
                 </div>
                 <div className="cart-item-foot">
                   <div className="cart-item-meta">
