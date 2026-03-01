@@ -171,7 +171,7 @@ a {
   inset: 0;
   background-color: #1f1f24;
   background-image:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.46) 42%, rgba(0, 0, 0, 0.14) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0.05) 42%, rgba(0, 0, 0, 0) 100%),
     linear-gradient(180deg, rgba(0, 0, 0, 0.46) 0%, rgba(0, 0, 0, 0.32) 55%, rgba(0, 0, 0, 0.4) 100%),
     url("/hero-banner.jpg");
   background-size: cover;
@@ -972,6 +972,70 @@ a {
   color: #6e6e79;
 }
 
+.policy-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: start center;
+  padding: 28px 16px 50px;
+  background: #f3f3f3;
+}
+
+.policy-card {
+  width: min(860px, 100%);
+  background: #fff;
+  border: 1px solid #e2e2ea;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+.policy-card h1 {
+  margin: 0 0 20px;
+  font-size: clamp(1.7rem, 4.5vw, 2.25rem);
+}
+
+.policy-section + .policy-section {
+  margin-top: 20px;
+}
+
+.policy-section h2 {
+  margin: 0 0 8px;
+  font-size: 1.08rem;
+}
+
+.policy-section p {
+  margin: 0;
+  color: #383845;
+  line-height: 1.5;
+}
+
+.policy-section p + p {
+  margin-top: 8px;
+}
+
+.policy-section ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  color: #383845;
+  line-height: 1.5;
+}
+
+.policy-section li + li {
+  margin-top: 4px;
+}
+
+.policy-back-link {
+  display: inline-block;
+  margin-top: 24px;
+  text-decoration: none;
+  font-weight: 700;
+  color: #262636;
+}
+
+.policy-back-link:hover {
+  color: #ff8a00;
+}
+
 .checkout-page,
 .success-page {
   min-height: 100vh;
@@ -1591,7 +1655,7 @@ a {
   }
 
   .hero-proof {
-    margin-top: 18px;
+    margin-top: 34px;
     font-size: 0.98rem;
     line-height: 1.35;
     max-width: 30ch;
@@ -1661,6 +1725,11 @@ a {
     justify-self: center;
     align-self: center;
     text-align: center;
+  }
+
+  .policy-card {
+    padding: 22px 16px;
+    border-radius: 16px;
   }
 
   .testimonials-head {

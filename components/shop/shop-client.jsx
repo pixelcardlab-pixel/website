@@ -187,16 +187,10 @@ export function ShopClient({ products, recommendations, testimonials, syncInfo }
 
       <footer className="footer reveal">
         <div>
-          <h4>About</h4>
-          <a href="#">Our Story</a>
-          <a href="#">Store Policies</a>
-          <a href="#">Contact</a>
-        </div>
-        <div>
           <h4>Support</h4>
-          <a href="#">Shipping</a>
-          <a href="#">Returns</a>
-          <a href="#">FAQ</a>
+          <a href="#">Shipping and returns</a>
+          <a href="mailto:pixelcardlab@gmail.com?subject=Website%20Contact">Contact</a>
+          <a href="/privacy-policy">Privacy Policy</a>
         </div>
         <div className="footer-brand">
           <Image src="/pixel-card-lab-logo.png" alt="Pixel Card Lab" width={132} height={26} />

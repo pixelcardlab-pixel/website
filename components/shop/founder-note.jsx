@@ -4,7 +4,13 @@ export function FounderNote() {
   return (
     <section className="founder-note reveal">
       <div className="founder-note-image">
-        <Image src="/dan-founder-wide.png" alt="Dan from Pixel Card Lab" fill sizes="120px" />
+        <Image
+          src="/dan-founder-hires.png"
+          alt="Dan from Pixel Card Lab"
+          fill
+          sizes="(max-width: 860px) 120px, 33vw"
+          quality={95}
+        />
       </div>
       <div className="founder-note-body">
         <p>
