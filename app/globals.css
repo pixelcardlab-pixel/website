@@ -1758,8 +1758,171 @@ a {
     flex-direction: column;
   }
 
-  .checkout-actions-review {
+.checkout-actions-review {
     align-items: flex-start;
     gap: 10px;
   }
+}
+
+.admin-wrap {
+  min-height: 100vh;
+  padding: 32px 16px 64px;
+}
+
+.admin-card {
+  max-width: 680px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.admin-card-wide {
+  max-width: 980px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.admin-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-form {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.admin-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+  width: 100%;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
+.admin-actions,
+.admin-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-card button {
+  appearance: none;
+  border: none;
+  border-radius: 999px;
+  background: #111214;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.96rem;
+  line-height: 1;
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease, opacity 0.16s ease;
+}
+
+.admin-card button:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.admin-card button:disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.admin-add-new-btn {
+  background: #1e9e43 !important;
+}
+
+.admin-success {
+  color: #0a7f32;
+}
+
+.admin-error {
+  color: #c52121;
+}
+
+.admin-listings {
+  margin-top: 24px;
+}
+
+.admin-list {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-list-item {
+  border: 1px solid #e1e1e1;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-list-item-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.admin-list-item-thumb-wrap {
+  width: 68px;
+  height: 68px;
+  flex: 0 0 68px;
+}
+
+.admin-list-item-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #dddddd;
+  background: #f7f7f7;
+}
+
+.admin-list-item-thumb--empty {
+  background: #efefef;
+}
+
+.admin-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+}
+
+.admin-upload-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #dddddd;
+  background: #f7f7f7;
 }
