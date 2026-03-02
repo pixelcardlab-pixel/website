@@ -131,11 +131,19 @@ export function AdminDashboard({ initialListings = [] }) {
 
     try {
       const response = await fetch(`/api/admin/manual-listings/${encodeURIComponent(listingId)}`, {
-        method: "DELETE"
+        method: "DELETE",
+        cache: "no-store"
       });
-      const parsed = await response.json().catch(() => ({}));
+      const raw = await response.text();
+      let parsed = {};
+      try {
+        parsed = raw ? JSON.parse(raw) : {};
+      } catch {
+        parsed = {};
+      }
       if (!response.ok) {
-        throw new Error(parsed.error || "Failed to delete listing");
+        const detail = parsed?.error || raw || "Failed to delete listing";
+        throw new Error(`Delete failed (${response.status}): ${detail}`);
       }
       await loadListings();
       if (form.id === listingId) {
@@ -285,6 +293,9 @@ export function AdminDashboard({ initialListings = [] }) {
                 <option value="large">Large parcel</option>
               </select>
             </label>
+          </div>
+
+          <div className="admin-grid admin-grid--status-row">
             <label>
               Details
               <select value={form.condition} onChange={(e) => onFieldChange("condition", e.target.value)}>

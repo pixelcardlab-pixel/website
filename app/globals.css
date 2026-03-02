@@ -1807,6 +1807,10 @@ a {
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
 }
 
+.admin-grid--status-row {
+  grid-template-columns: repeat(2, minmax(190px, 1fr));
+}
+
 .admin-form label {
   display: grid;
   gap: 6px;
