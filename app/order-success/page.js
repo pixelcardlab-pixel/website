@@ -3,7 +3,8 @@ import Link from "next/link";
 export const runtime = "edge";
 
 export default function OrderSuccessPage({ searchParams }) {
-  const orderId = searchParams?.order || "LOCAL-UNKNOWN";
+  const orderId = typeof searchParams?.order === "string" ? searchParams.order : "";
+  const displayOrderId = orderId || "UNKNOWN";
 
   return (
     <main className="success-page">
@@ -11,8 +12,10 @@ export default function OrderSuccessPage({ searchParams }) {
         <p className="eyebrow dark">Order Confirmed</p>
         <h1>Thanks for your purchase.</h1>
         <p>
-          Your placeholder order ID is <strong>{orderId}</strong>. You can now swap placeholders with
-          live product data and a real fulfillment flow.
+          Your order number is <strong>{displayOrderId}</strong>.
+        </p>
+        <p>
+          Payment status: <strong>Processing</strong>. We will email you with shipping updates soon.
         </p>
         <Link href="/">Back to Store</Link>
       </section>

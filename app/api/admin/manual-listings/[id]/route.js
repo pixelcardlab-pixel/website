@@ -5,6 +5,14 @@ import { getSupabaseAdminClient, getSupabaseBucketName, isSupabaseConfigured } f
 
 export const runtime = "edge";
 
+function getManualListingsDbErrorMessage(error) {
+  const message = String(error?.message || "");
+  if (message.toLowerCase().includes("quantity") && message.toLowerCase().includes("manual_listings")) {
+    return "Database schema is outdated: missing `manual_listings.quantity`. Run the SQL in `supabase/manual-listings.sql` in Supabase SQL Editor, then retry.";
+  }
+  return message || "Database request failed.";
+}
+
 function parseImageList(rawImages) {
   if (!rawImages || typeof rawImages !== "string") return [];
   return rawImages
@@ -80,6 +88,7 @@ export async function PATCH(request, { params }) {
     const payload = normalizeManualListingPayload({
       name,
       price: String(formData.get("price") || ""),
+      quantity: String(formData.get("quantity") || ""),
       description: String(formData.get("description") || ""),
       condition: String(formData.get("condition") || ""),
       status: String(formData.get("status") || ""),
@@ -98,7 +107,7 @@ export async function PATCH(request, { params }) {
       .eq("id", id);
 
     if (error) {
-      return NextResponse.json({ error: `Database update failed: ${error.message}` }, { status: 400 });
+      return NextResponse.json({ error: `Database update failed: ${getManualListingsDbErrorMessage(error)}` }, { status: 400 });
     }
 
     return NextResponse.json({ ok: true });
