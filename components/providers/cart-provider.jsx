@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { CART_KEY } from "@/lib/storage";
+import { inferPostageSizeFromText, normalizePostageSize } from "@/lib/shipping";
 
 const CartContext = createContext(null);
 
@@ -17,8 +18,12 @@ function sanitizeCartItem(item) {
     name: item.name || "Item",
     price,
     image: item.image || "",
+    description: item.description || "",
     set: item.set || "",
     rarity: item.rarity || "",
+    postageSize:
+      normalizePostageSize(item.postageSize) ||
+      inferPostageSizeFromText(`${item.name || ""} ${item.description || ""}`),
     sourceUrl: item.sourceUrl || "",
     quantity: 1
   };

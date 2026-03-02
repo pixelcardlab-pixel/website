@@ -1049,6 +1049,7 @@ a {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: 14px;
+  margin-top: 20px;
 }
 
 .checkout-wrap-review {
@@ -1084,7 +1085,23 @@ a {
   display: grid;
   gap: 8px;
   margin-top: 14px;
-  font-weight: 600;
+  font-weight: 500;
+  color: #202026;
+  font-size: 0.95rem;
+}
+
+.checkout-field-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.checkout-field-row label {
+  margin-top: 14px;
+}
+
+.checkout-card label.checkout-label-spaced {
+  margin-top: 28px;
 }
 
 .shipping-options {
@@ -1096,7 +1113,7 @@ a {
 }
 
 .checkout-notice {
-  margin-top: 12px;
+  margin-top: 24px;
 }
 
 .shipping-options h3 {
@@ -1139,12 +1156,101 @@ a {
   font-weight: 700;
 }
 
+.checkout-card label.checkout-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkout-checkbox input {
+  width: 16px;
+  height: 16px;
+}
+
+.checkout-checkbox span {
+  font-weight: 600;
+}
+
 .checkout-card input,
 .checkout-card textarea {
   border: 1px solid #d9d9e3;
   border-radius: 12px;
   padding: 11px;
   font: inherit;
+  color: #202026;
+}
+
+.checkout-card input.input-error,
+.checkout-card textarea.input-error {
+  border-color: #c72424;
+}
+
+.field-error-msg {
+  margin: 0;
+  color: #c72424;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.address-autocomplete {
+  position: relative;
+}
+
+.address-suggestions {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  background: #fff;
+  border: 1px solid #d9d9e3;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(25, 25, 33, 0.12);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.address-suggestion-btn {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #ececf3;
+  background: #fff;
+  color: #202026;
+  text-align: left;
+  padding: 10px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.address-suggestion-btn:first-of-type {
+  border-top: none;
+}
+
+.address-suggestion-btn:hover {
+  background: #f5f6fa;
+}
+
+.address-suggestion-hint {
+  margin: 0;
+  padding: 10px 12px;
+  color: #666674;
+  font-size: 0.9rem;
+}
+
+.required-mark {
+  color: #c72424;
+}
+
+.field-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.checkout-notice p {
+  margin: 6px 0 0;
+  color: #4f4f61;
+  font-size: 0.88rem;
 }
 
 .error-text {
@@ -1154,7 +1260,7 @@ a {
 .checkout-actions {
   display: flex;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 24px;
 }
 
 .checkout-actions button {
@@ -1244,8 +1350,10 @@ a {
 
 .checkout-item-content h3 {
   margin: 2px 0 6px;
-  font-size: clamp(0.86rem, 1.05vw, 1rem);
-  line-height: 1.2;
+  color: #202026;
+  font-size: clamp(0.88rem, 1vw, 0.98rem);
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .checkout-item-meta {
@@ -1263,15 +1371,17 @@ a {
 }
 
 .checkout-item-qty {
-  margin: 4px 0 0;
+  margin: 0;
   color: #666674;
   font-size: 0.9rem;
 }
 
 .checkout-item-foot strong {
   display: block;
-  margin-top: 2px;
-  font-size: 1.1rem;
+  margin-top: 4px;
+  color: #202026;
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -1294,13 +1404,22 @@ a {
 .checkout-primary {
   background: linear-gradient(140deg, #ffb300, #ff7a00);
   color: #fff;
+  font-size: 1.05rem;
+  padding: 14px 24px;
+  min-width: 220px;
 }
 
 .checkout-primary:hover {
   background: linear-gradient(140deg, #ffbf2a, #ff8600);
 }
 
+.checkout-actions .checkout-primary {
+  background: linear-gradient(140deg, #ffb300, #ff7a00);
+}
+
 .continue-shopping-link {
+  display: inline-block;
+  margin-top: 22px;
   color: #ff8a00;
   font-weight: 700;
   text-decoration: underline;
@@ -1690,7 +1809,7 @@ a {
   }
 
   .checkout-item-content h3 {
-    font-size: clamp(0.95rem, 4.2vw, 1.1rem);
+    font-size: clamp(0.92rem, 4vw, 1rem);
   }
 
   .checkout-item-foot {
@@ -1698,7 +1817,7 @@ a {
   }
 
   .checkout-item-foot strong {
-    font-size: 1.85rem;
+    font-size: 1.1rem;
   }
 
   .checkout-remove-btn {
@@ -1758,7 +1877,12 @@ a {
     flex-direction: column;
   }
 
-.checkout-actions-review {
+  .checkout-field-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .checkout-actions-review {
     align-items: flex-start;
     gap: 10px;
   }
