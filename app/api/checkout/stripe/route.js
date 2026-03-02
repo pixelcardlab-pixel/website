@@ -1,25 +1,14 @@
 import { NextResponse } from "next/server";
+import { calculateNzPostShippingQuote } from "@/lib/shipping";
 
 export const runtime = "edge";
 
 const SHIPPING_OPTIONS = {
-  nationwide: {
-    id: "nationwide",
-    label: "Nationwide",
-    amount: 6,
-    description: "Nationwide delivery"
-  },
-  rural: {
-    id: "rural",
-    label: "Rural",
-    amount: 12,
-    description: "Rural delivery"
-  },
   pickup: {
     id: "pickup",
-    label: "Free pick-up",
+    label: "Pickup (Auckland CBD)",
     amount: 0,
-    description: "Pickup is available from Auckland CBD (weekdays 9.30am till 6pm)."
+    description: "Pickup is available from Auckland CBD (weekdays 9:30am-6:00pm)."
   }
 };
 
@@ -48,8 +37,9 @@ export async function POST(request) {
 
     const body = await request.json();
     const rawItems = Array.isArray(body?.items) ? body.items : [];
-    const selectedShipping =
-      SHIPPING_OPTIONS[String(body?.shippingOptionId || "").toLowerCase()] || SHIPPING_OPTIONS.nationwide;
+    const shippingOptionId = String(body?.shippingOptionId || "delivery").toLowerCase();
+    const shippingAddress = body?.address && typeof body.address === "object" ? body.address : {};
+    const customer = body?.customer && typeof body.customer === "object" ? body.customer : {};
 
     if (!rawItems.length) {
       return NextResponse.json({ error: "No cart items found." }, { status: 400 });
@@ -61,12 +51,18 @@ export async function POST(request) {
         quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
         unitAmount: Math.max(0, Number(item.price) || 0),
         name: item.name,
-        description: `${item.set || "Trade Me"} • ${item.rarity || "Listing"}`
+        description: `${item.set || "Trade Me"} • ${item.rarity || "Listing"}`,
+        postageSize: item.postageSize || ""
       }));
 
     if (!items.length) {
       return NextResponse.json({ error: "No valid items in cart." }, { status: 400 });
     }
+
+    const selectedShipping =
+      shippingOptionId === "pickup"
+        ? SHIPPING_OPTIONS.pickup
+        : calculateNzPostShippingQuote(items, shippingAddress);
 
     if (selectedShipping.amount > 0) {
       items.push({
@@ -84,12 +80,29 @@ export async function POST(request) {
     params.append("mode", "payment");
     params.append("success_url", `${origin}/order-success?order={CHECKOUT_SESSION_ID}`);
     params.append("cancel_url", `${origin}/checkout`);
+    params.append("customer_email", String(customer?.email || ""));
     params.append("metadata[shipping_option]", selectedShipping.label);
     params.append("metadata[shipping_cost]", selectedShipping.amount ? selectedShipping.amount.toFixed(2) : "0.00");
+    params.append("metadata[parcel_size]", selectedShipping.parcelSize || "");
+    params.append("metadata[parcel_dimensions]", selectedShipping.parcelDimensions || "");
+    params.append("metadata[delivery_island]", selectedShipping.island || "");
+    params.append("metadata[delivery_rural]", selectedShipping.isRural ? "yes" : "no");
+    params.append("metadata[first_name]", String(customer?.firstName || ""));
+    params.append("metadata[last_name]", String(customer?.lastName || ""));
+    params.append("metadata[phone]", String(customer?.phone || ""));
+    params.append("metadata[address_line1]", String(shippingAddress?.line1 || ""));
+    params.append("metadata[address_line2]", String(shippingAddress?.line2 || ""));
+    params.append("metadata[address_suburb]", String(shippingAddress?.suburb || ""));
+    params.append("metadata[address_city]", String(shippingAddress?.city || ""));
+    params.append("metadata[address_region]", String(shippingAddress?.region || ""));
+    params.append("metadata[address_postcode]", String(shippingAddress?.postcode || ""));
+    params.append("metadata[address_country]", String(shippingAddress?.country || ""));
+    params.append("metadata[delivery_instructions]", String(shippingAddress?.deliveryInstructions || ""));
+    params.append("metadata[authority_to_leave]", shippingAddress?.authorityToLeave ? "yes" : "no");
     params.append(
       "metadata[pickup_note]",
       selectedShipping.id === "pickup"
-        ? "Pickup is available from Auckland CBD (weekdays 9.30am till 6pm)."
+        ? "Pickup Auckland CBD, Monday-Friday 9:30am-6:00pm. Pickup by arrangement only."
         : ""
     );
 
