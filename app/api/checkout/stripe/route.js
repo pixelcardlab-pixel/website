@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { calculateNzPostShippingQuote } from "@/lib/shipping";
+import { createPendingOrder, createPublicOrderId } from "@/lib/orders-store";
+import { getManualListingsStockByIds } from "@/lib/manual-listings";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const SHIPPING_OPTIONS = {
   pickup: {
@@ -20,6 +22,16 @@ function appendLineItem(params, index, item) {
   if (item.description) {
     params.append(`line_items[${index}][price_data][product_data][description]`, item.description);
   }
+}
+
+function parseQuantity(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return 1;
+  return Math.max(1, Math.floor(parsed));
+}
+
+function normalizeSourceType(value) {
+  return String(value || "").toLowerCase() === "manual" ? "manual" : "trademe";
 }
 
 export async function POST(request) {
@@ -48,7 +60,10 @@ export async function POST(request) {
     const items = rawItems
       .filter((item) => item && typeof item.name === "string")
       .map((item) => ({
-        quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
+        productId: String(item.id || "").trim(),
+        sourceType: normalizeSourceType(item.sourceType),
+        quantity: parseQuantity(item.quantity),
+        maxQuantity: parseQuantity(item.maxQuantity),
         unitAmount: Math.max(0, Number(item.price) || 0),
         name: item.name,
         description: `${item.set || "Trade Me"} • ${item.rarity || "Listing"}`,
@@ -59,6 +74,36 @@ export async function POST(request) {
       return NextResponse.json({ error: "No valid items in cart." }, { status: 400 });
     }
 
+    const invalidSingleQuantityItem = items.find((item) => item.sourceType !== "manual" && item.quantity > 1);
+    if (invalidSingleQuantityItem) {
+      return NextResponse.json(
+        { error: `${invalidSingleQuantityItem.name} only supports quantity 1.` },
+        { status: 409 }
+      );
+    }
+
+    const manualItems = items.filter((item) => item.sourceType === "manual" && item.productId);
+    if (manualItems.length) {
+      const stockById = await getManualListingsStockByIds(manualItems.map((item) => item.productId));
+      for (const item of manualItems) {
+        const stock = stockById.get(item.productId);
+        if (!stock || String(stock.status || "").toLowerCase() === "sold" || Number(stock.quantity || 0) <= 0) {
+          return NextResponse.json(
+            { error: `${item.name} is no longer available. Please refresh your cart.` },
+            { status: 409 }
+          );
+        }
+        if (item.quantity > Number(stock.quantity || 0)) {
+          return NextResponse.json(
+            {
+              error: `Only ${stock.quantity} left for ${item.name}. Please reduce quantity in cart.`
+            },
+            { status: 409 }
+          );
+        }
+      }
+    }
+
     const selectedShipping =
       shippingOptionId === "pickup"
         ? SHIPPING_OPTIONS.pickup
@@ -67,6 +112,8 @@ export async function POST(request) {
     if (selectedShipping.amount > 0) {
       items.push({
         quantity: 1,
+        productId: "",
+        sourceType: "shipping",
         unitAmount: selectedShipping.amount,
         name: `Shipping - ${selectedShipping.label}`,
         description: selectedShipping.description
@@ -75,12 +122,14 @@ export async function POST(request) {
 
     const origin =
       request.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const publicOrderId = createPublicOrderId();
 
     const params = new URLSearchParams();
     params.append("mode", "payment");
-    params.append("success_url", `${origin}/order-success?order={CHECKOUT_SESSION_ID}`);
+    params.append("success_url", `${origin}/order-success?order=${publicOrderId}&session_id={CHECKOUT_SESSION_ID}`);
     params.append("cancel_url", `${origin}/checkout`);
     params.append("customer_email", String(customer?.email || ""));
+    params.append("metadata[order_id]", publicOrderId);
     params.append("metadata[shipping_option]", selectedShipping.label);
     params.append("metadata[shipping_cost]", selectedShipping.amount ? selectedShipping.amount.toFixed(2) : "0.00");
     params.append("metadata[parcel_size]", selectedShipping.parcelSize || "");
@@ -122,6 +171,18 @@ export async function POST(request) {
       const stripeMessage = stripeData?.error?.message || "Stripe checkout failed.";
       return NextResponse.json({ error: stripeMessage }, { status: stripeResponse.status });
     }
+
+    await createPendingOrder({
+      publicId: publicOrderId,
+      checkoutSessionId: stripeData?.id || "",
+      customerEmail: String(customer?.email || ""),
+      currency: "usd",
+      amountTotal: items.reduce((total, item) => total + Number(item.unitAmount || 0) * Number(item.quantity || 1), 0),
+      items,
+      shipping: selectedShipping,
+      customer,
+      address: shippingAddress
+    });
 
     return NextResponse.json({ url: stripeData?.url || null });
   } catch (error) {

@@ -710,6 +710,29 @@ a {
   gap: 2px;
 }
 
+.qty-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-btn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #d6d6de;
+  background: #fff;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.qty-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .remove-btn {
   border: none;
   border-radius: 10px;
@@ -1920,6 +1943,33 @@ a {
   align-items: center;
 }
 
+.admin-section-links {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.admin-section-links a {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #d8d8d8;
+  background: #fafafa;
+  color: #121212;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.admin-section-links a:hover {
+  background: #f0f0f0;
+}
+
+.admin-section-links a[aria-current="page"] {
+  background: #111214;
+  border-color: #111214;
+  color: #fff;
+}
+
 .admin-form {
   display: grid;
   gap: 12px;
@@ -1999,6 +2049,30 @@ a {
   margin-top: 24px;
 }
 
+.admin-orders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.admin-orders-filters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.admin-orders-filters input,
+.admin-orders-filters select {
+  width: 100%;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
 .admin-list {
   display: grid;
   gap: 8px;
@@ -2040,6 +2114,33 @@ a {
   background: #efefef;
 }
 
+.admin-orders-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e1e1e1;
+  border-radius: 10px;
+}
+
+.admin-orders-table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: collapse;
+}
+
+.admin-orders-table th,
+.admin-orders-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 10px;
+  border-bottom: 1px solid #ececec;
+  font-size: 0.92rem;
+}
+
+.admin-orders-table th {
+  background: #f7f7f7;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .admin-upload-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
@@ -2053,4 +2154,15 @@ a {
   border-radius: 10px;
   border: 1px solid #dddddd;
   background: #f7f7f7;
+}
+
+@media (max-width: 760px) {
+  .admin-orders-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-section-links {
+    flex-wrap: wrap;
+  }
 }

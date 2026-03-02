@@ -20,7 +20,7 @@ function parseStoredFavorites(raw) {
 }
 
 export default function CheckoutPage() {
-  const { items, itemCount, subtotal, removeItem } = useCart();
+  const { items, itemCount, subtotal, removeItem, updateQuantity } = useCart();
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -556,7 +556,29 @@ export default function CheckoutPage() {
                     <h3>{item.name}</h3>
                     <div className="checkout-item-foot">
                       <div>
-                        <p className="checkout-item-qty">Qty: {item.quantity}</p>
+                        <div className="qty-controls" aria-label={`Quantity for ${item.name}`}>
+                          <button
+                            type="button"
+                            className="qty-btn"
+                            aria-label={`Decrease quantity for ${item.name}`}
+                            onClick={() => updateQuantity(item.id, Math.max(1, Number(item.quantity || 1) - 1))}
+                            disabled={Number(item.quantity || 1) <= 1}
+                          >
+                            -
+                          </button>
+                          <p className="checkout-item-qty">Qty: {item.quantity}</p>
+                          <button
+                            type="button"
+                            className="qty-btn"
+                            aria-label={`Increase quantity for ${item.name}`}
+                            onClick={() =>
+                              updateQuantity(item.id, Math.min(Number(item.maxQuantity || 1), Number(item.quantity || 1) + 1))
+                            }
+                            disabled={Number(item.quantity || 1) >= Number(item.maxQuantity || 1)}
+                          >
+                            +
+                          </button>
+                        </div>
                         <strong>{formatCurrency(item.price * item.quantity)}</strong>
                       </div>
                       <button className="checkout-remove-btn" onClick={() => removeItem(item.id)}>
