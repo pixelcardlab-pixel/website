@@ -18,6 +18,13 @@ function inferMaxQuantity(item) {
   return Math.max(1, Math.floor(candidate));
 }
 
+function inferSourceType(item) {
+  const explicit = String(item?.sourceType || "").toLowerCase();
+  if (explicit === "manual" || explicit === "trademe") return explicit;
+  const id = String(item?.id || "");
+  return id.startsWith("tm-") ? "trademe" : "manual";
+}
+
 function sanitizeCartItem(item) {
   if (!item || typeof item.id !== "string") {
     return null;
@@ -26,7 +33,7 @@ function sanitizeCartItem(item) {
   const price = Number.isFinite(item.price) ? Number(item.price) : 0;
   const maxQuantity = inferMaxQuantity(item);
   const quantity = Math.min(parsePositiveInt(item.quantity, 1), maxQuantity);
-  const sourceType = String(item.sourceType || "").toLowerCase() === "manual" ? "manual" : "trademe";
+  const sourceType = inferSourceType(item);
 
   return {
     id: item.id,

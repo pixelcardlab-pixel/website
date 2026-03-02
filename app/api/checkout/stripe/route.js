@@ -30,7 +30,16 @@ function parseQuantity(value) {
 }
 
 function normalizeSourceType(value) {
-  return String(value || "").toLowerCase() === "manual" ? "manual" : "trademe";
+  const normalized = String(value || "").toLowerCase();
+  if (normalized === "manual" || normalized === "trademe") return normalized;
+  return "";
+}
+
+function inferSourceType(item) {
+  const explicit = normalizeSourceType(item?.sourceType);
+  if (explicit) return explicit;
+  const productId = String(item?.id || "").trim();
+  return productId.startsWith("tm-") ? "trademe" : "manual";
 }
 
 function createPublicOrderId() {
@@ -77,7 +86,7 @@ export async function POST(request) {
       .filter((item) => item && typeof item.name === "string")
       .map((item) => ({
         productId: String(item.id || "").trim(),
-        sourceType: normalizeSourceType(item.sourceType),
+        sourceType: inferSourceType(item),
         quantity: parseQuantity(item.quantity),
         maxQuantity: parseQuantity(item.maxQuantity),
         unitAmount: Math.max(0, Number(item.price) || 0),
