@@ -3,7 +3,7 @@ import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
 import { getManualListings, normalizeManualListingPayload } from "@/lib/manual-listings";
 import { getSupabaseAdminClient, getSupabaseBucketName, isSupabaseConfigured } from "@/lib/supabase-admin";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 function parseImageList(rawImages) {
   if (!rawImages || typeof rawImages !== "string") return [];
@@ -32,7 +32,7 @@ async function uploadImagesIfProvided(supabase, files, listingName) {
     const file = uploadableFiles[index];
     const ext = file.name.includes(".") ? file.name.split(".").pop().toLowerCase() : "jpg";
     const path = `manual/${Date.now()}-${safeName || "listing"}-${index + 1}.${ext}`;
-    const bytes = Buffer.from(await file.arrayBuffer());
+    const bytes = await file.arrayBuffer();
 
     const { error } = await supabase.storage.from(bucket).upload(path, bytes, {
       contentType: file.type || "application/octet-stream",

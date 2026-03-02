@@ -2,7 +2,7 @@ import { ShopClient } from "@/components/shop/shop-client";
 import { getStorefrontData } from "@/lib/storefront";
 
 export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export default async function HomePage() {
   const data = await getStorefrontData();
