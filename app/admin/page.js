@@ -5,6 +5,7 @@ import { isAdminConfigured, isAdminServerAuthenticated } from "@/lib/admin-auth"
 import { getManualListings } from "@/lib/manual-listings";
 
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 export default async function AdminPage() {
   if (!isAdminConfigured()) {
