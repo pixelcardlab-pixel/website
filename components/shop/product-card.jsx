@@ -12,9 +12,12 @@ export function ProductCard({
   onAddToCart,
   isFavorite = false,
   onToggleFavorite,
-  isInCart = false
+  cartQuantity = 0,
+  maxQuantity = 1
 }) {
   const isSold = product.status === "sold";
+  const availableQuantity = Math.max(1, Math.floor(Number(maxQuantity || 1)));
+  const isAtMax = cartQuantity >= availableQuantity;
   const detailsHref = `/items/${encodeURIComponent(product.id)}`;
   const imageCandidates = useMemo(
     () => getTradeMeImageCandidates(product.image || "/pixel-card-lab-logo.png"),
@@ -107,11 +110,11 @@ export function ProductCard({
           View Item
         </Link>
         <button
-          className={`add-btn ${isInCart ? "in-cart" : ""}`}
+          className={`add-btn ${cartQuantity > 0 ? "in-cart" : ""}`}
           onClick={() => onAddToCart(product)}
-          disabled={isSold || isInCart}
+          disabled={isSold || isAtMax}
         >
-          {isInCart ? "In Cart" : "Add to Cart"}
+          {isAtMax ? "Max Qty" : cartQuantity > 0 ? "Add Another" : "Add to Cart"}
         </button>
       </div>
       {isMounted && isPreviewOpen

@@ -24,9 +24,23 @@ export function ShopClient({ products, recommendations, testimonials, syncInfo }
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const activeProducts = products.filter((product) => product.status !== "sold");
+  const activeProducts = products.filter(
+    (product) => product.status !== "sold" && (!Number.isFinite(Number(product.quantity)) || Number(product.quantity) > 0)
+  );
   const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
-  const cartSet = useMemo(() => new Set(items.map((item) => item.id)), [items]);
+  const cartMap = useMemo(
+    () =>
+      new Map(
+        items.map((item) => [
+          item.id,
+          {
+            quantity: Number(item.quantity || 1),
+            maxQuantity: Number(item.maxQuantity || 1)
+          }
+        ])
+      ),
+    [items]
+  );
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const visibleProducts = useMemo(
     () =>
@@ -156,7 +170,8 @@ export function ShopClient({ products, recommendations, testimonials, syncInfo }
                 onAddToCart={addItem}
                 isFavorite={favoriteSet.has(product.id)}
                 onToggleFavorite={toggleFavorite}
-                isInCart={cartSet.has(product.id)}
+                cartQuantity={cartMap.get(product.id)?.quantity || 0}
+                maxQuantity={Math.max(1, Math.floor(Number(product.quantity || 1)))}
               />
             ))}
           </div>
