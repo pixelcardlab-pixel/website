@@ -8,7 +8,8 @@ export const products = [
     image: "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?auto=format&fit=crop&w=900&q=80",
     badge: "Popular",
     status: "active",
-    sourceUrl: ""
+    sourceUrl: "",
+    postageSize: "small"
   },
   {
     id: "pikachu-illustration-rare",
@@ -19,7 +20,8 @@ export const products = [
     image: "https://images.unsplash.com/photo-1619946794135-5bc917a27793?auto=format&fit=crop&w=900&q=80",
     badge: "New",
     status: "active",
-    sourceUrl: ""
+    sourceUrl: "",
+    postageSize: "small"
   },
   {
     id: "mewtwo-vstar",
@@ -30,7 +32,8 @@ export const products = [
     image: "https://images.unsplash.com/photo-1611996575749-79a3a250f948?auto=format&fit=crop&w=900&q=80",
     badge: "Top Rated",
     status: "active",
-    sourceUrl: ""
+    sourceUrl: "",
+    postageSize: "medium"
   },
   {
     id: "151-booster-bundle",
@@ -41,7 +44,8 @@ export const products = [
     image: "https://images.unsplash.com/photo-1606166325683-e6deb697d301?auto=format&fit=crop&w=900&q=80",
     badge: "Sealed",
     status: "active",
-    sourceUrl: ""
+    sourceUrl: "",
+    postageSize: "large"
   }
 ];
 

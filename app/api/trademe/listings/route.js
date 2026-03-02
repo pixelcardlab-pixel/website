@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getStorefrontData } from "@/lib/storefront";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export async function GET() {
   const data = await getStorefrontData();
