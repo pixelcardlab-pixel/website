@@ -6,6 +6,9 @@ import { getManualListings } from "@/lib/manual-listings";
 
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
+export const metadata = {
+  title: "Pixel Card Lab | Admin"
+};
 
 export default async function AdminPage() {
   if (!isAdminConfigured()) {

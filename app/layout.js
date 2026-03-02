@@ -2,7 +2,7 @@ import "./globals.css";
 import { CartProvider } from "@/components/providers/cart-provider";
 
 export const metadata = {
-  title: "PixelCardLab Shop",
+  title: "Pixel Card Lab | Trading Card Store",
   description: "Pokemon trading card storefront scaffold with local + Stripe checkout",
   icons: {
     icon: "/pixel-card-lab-logo_favicon.png",
