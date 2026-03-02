@@ -21,6 +21,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "staticcdn.co.nz"
+      },
+      {
+        protocol: "https",
+        hostname: "klldlcfndvtrslculrig.supabase.co"
       }
     ]
   }

@@ -9,6 +9,15 @@ import { ItemDetailShell } from "@/components/shop/item-detail-shell";
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
+function formatPostageSize(value) {
+  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+  if (!normalized) return "";
+  if (normalized === "small" || normalized === "small parcel") return "Small parcel";
+  if (normalized === "medium" || normalized === "medium parcel") return "Medium parcel";
+  if (normalized === "large" || normalized === "large parcel") return "Large parcel";
+  return value;
+}
+
 export default async function ItemDetailPage({ params }) {
   const data = await getStorefrontData();
   const item = data.products.find((product) => product.id === params.id);
@@ -21,6 +30,7 @@ export default async function ItemDetailPage({ params }) {
 
   const description = typeof liveItem.description === "string" ? liveItem.description.trim() : "";
   const condition = liveItem?.details?.condition || (liveItem?.set === "Trade Me" ? "Used" : "Not specified");
+  const postageSize = formatPostageSize(liveItem?.postageSize);
   const galleryImages = Array.isArray(liveItem.images) ? liveItem.images : [];
 
   return (
@@ -37,7 +47,15 @@ export default async function ItemDetailPage({ params }) {
             </div>
             <div className="detail-row">
               <strong>Description</strong>
-              <span>{description || liveItem.name}</span>
+              <span>
+                {description || liveItem.name}
+                {postageSize ? (
+                  <>
+                    <br />
+                    Postage: {postageSize}
+                  </>
+                ) : null}
+              </span>
             </div>
           </div>
           <ItemDetailActions item={liveItem} />
