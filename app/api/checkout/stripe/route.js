@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { calculateNzPostShippingQuote } from "@/lib/shipping";
-import { createPendingOrder, createPublicOrderId } from "@/lib/orders-store";
 import { getManualListingsStockByIds } from "@/lib/manual-listings";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 const SHIPPING_OPTIONS = {
   pickup: {
@@ -32,6 +31,23 @@ function parseQuantity(value) {
 
 function normalizeSourceType(value) {
   return String(value || "").toLowerCase() === "manual" ? "manual" : "trademe";
+}
+
+function createPublicOrderId() {
+  const now = new Date();
+  const y = now.getUTCFullYear();
+  const m = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(now.getUTCDate()).padStart(2, "0");
+  const rand = Math.random().toString(36).slice(2, 8).toUpperCase();
+  return `PCL-${y}${m}${d}-${rand}`;
+}
+
+function encodeManualItemsMetadata(items) {
+  const encoded = items
+    .filter((item) => item && item.productId)
+    .map((item) => `${encodeURIComponent(item.productId)}:${parseQuantity(item.quantity)}`)
+    .join(",");
+  return encoded.slice(0, 500);
 }
 
 export async function POST(request) {
@@ -123,6 +139,7 @@ export async function POST(request) {
     const origin =
       request.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
     const publicOrderId = createPublicOrderId();
+    const manualItemsMetadata = encodeManualItemsMetadata(manualItems);
 
     const params = new URLSearchParams();
     params.append("mode", "payment");
@@ -130,6 +147,11 @@ export async function POST(request) {
     params.append("cancel_url", `${origin}/checkout`);
     params.append("customer_email", String(customer?.email || ""));
     params.append("metadata[order_id]", publicOrderId);
+    params.append("metadata[inventory_applied]", "no");
+    params.append("metadata[manual_items]", manualItemsMetadata);
+    params.append("payment_intent_data[metadata][order_id]", publicOrderId);
+    params.append("payment_intent_data[metadata][inventory_applied]", "no");
+    params.append("payment_intent_data[metadata][manual_items]", manualItemsMetadata);
     params.append("metadata[shipping_option]", selectedShipping.label);
     params.append("metadata[shipping_cost]", selectedShipping.amount ? selectedShipping.amount.toFixed(2) : "0.00");
     params.append("metadata[parcel_size]", selectedShipping.parcelSize || "");
@@ -171,18 +193,6 @@ export async function POST(request) {
       const stripeMessage = stripeData?.error?.message || "Stripe checkout failed.";
       return NextResponse.json({ error: stripeMessage }, { status: stripeResponse.status });
     }
-
-    await createPendingOrder({
-      publicId: publicOrderId,
-      checkoutSessionId: stripeData?.id || "",
-      customerEmail: String(customer?.email || ""),
-      currency: "usd",
-      amountTotal: items.reduce((total, item) => total + Number(item.unitAmount || 0) * Number(item.quantity || 1), 0),
-      items,
-      shipping: selectedShipping,
-      customer,
-      address: shippingAddress
-    });
 
     return NextResponse.json({ url: stripeData?.url || null });
   } catch (error) {
