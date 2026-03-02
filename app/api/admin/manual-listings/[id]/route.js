@@ -3,7 +3,7 @@ import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
 import { normalizeManualListingPayload } from "@/lib/manual-listings";
 import { getSupabaseAdminClient, getSupabaseBucketName, isSupabaseConfigured } from "@/lib/supabase-admin";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 function parseImageList(rawImages) {
   if (!rawImages || typeof rawImages !== "string") return [];
@@ -32,7 +32,7 @@ async function uploadImagesIfProvided(supabase, files, listingName) {
     const file = uploadableFiles[index];
     const ext = file.name.includes(".") ? file.name.split(".").pop().toLowerCase() : "jpg";
     const path = `manual/${Date.now()}-${safeName || "listing"}-${index + 1}.${ext}`;
-    const bytes = Buffer.from(await file.arrayBuffer());
+    const bytes = await file.arrayBuffer();
 
     const { error } = await supabase.storage.from(bucket).upload(path, bytes, {
       contentType: file.type || "application/octet-stream",
@@ -63,7 +63,7 @@ export async function PATCH(request, { params }) {
     );
   }
 
-  const id = typeof params?.id === "string" ? params.id : "";
+  const id = typeof params?.id === "string" ? decodeURIComponent(params.id) : "";
   if (!id) {
     return NextResponse.json({ error: "Missing listing id" }, { status: 400 });
   }
@@ -119,17 +119,22 @@ export async function DELETE(request, { params }) {
     );
   }
 
-  const id = typeof params?.id === "string" ? params.id : "";
+  const id = typeof params?.id === "string" ? decodeURIComponent(params.id) : "";
   if (!id) {
     return NextResponse.json({ error: "Missing listing id" }, { status: 400 });
   }
 
-  const supabase = getSupabaseAdminClient();
-  const { error } = await supabase.from("manual_listings").delete().eq("id", id);
+  try {
+    const supabase = getSupabaseAdminClient();
+    const { error } = await supabase.from("manual_listings").delete().eq("id", id);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      return NextResponse.json({ error: `Database delete failed: ${error.message}` }, { status: 400 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Delete manual listing failed:", error);
+    return NextResponse.json({ error: error?.message || "Failed to delete listing" }, { status: 400 });
   }
-
-  return NextResponse.json({ ok: true });
 }

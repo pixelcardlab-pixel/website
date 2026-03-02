@@ -6,7 +6,7 @@ import {
   isValidAdminPassword
 } from "@/lib/admin-auth";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export async function POST(request) {
   if (!isAdminConfigured()) {
@@ -50,4 +50,3 @@ export async function DELETE() {
   });
   return response;
 }
-

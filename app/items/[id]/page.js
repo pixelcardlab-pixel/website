@@ -7,7 +7,7 @@ import { ItemDetailActions } from "@/components/shop/item-detail-actions";
 import { ItemDetailShell } from "@/components/shop/item-detail-shell";
 
 export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 function formatPostageSize(value) {
   const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
