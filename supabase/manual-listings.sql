@@ -4,6 +4,7 @@ create table if not exists public.manual_listings (
   id text primary key,
   name text not null,
   price numeric(10, 2) not null default 0,
+  quantity integer not null default 1 check (quantity >= 0),
   image text not null default '',
   images text[] not null default '{}',
   description text not null default '',
@@ -17,6 +18,9 @@ create table if not exists public.manual_listings (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.manual_listings
+  add column if not exists quantity integer not null default 1 check (quantity >= 0);
 
 create or replace function public.set_manual_listing_updated_at()
 returns trigger
@@ -33,4 +37,3 @@ create trigger trg_manual_listings_updated_at
 before update on public.manual_listings
 for each row
 execute function public.set_manual_listing_updated_at();
-

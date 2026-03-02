@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -7,6 +8,7 @@ const EMPTY_FORM = {
   id: "",
   name: "",
   price: "",
+  quantity: "1",
   description: "",
   condition: "Used",
   status: "active",
@@ -21,6 +23,7 @@ function listingToForm(listing) {
     id: listing.id || "",
     name: listing.name || "",
     price: String(listing.price ?? ""),
+    quantity: String(Number.isFinite(Number(listing.quantity)) ? Math.max(0, Math.floor(Number(listing.quantity))) : 1),
     description: listing.description || "",
     condition: listing?.details?.condition || "Used",
     status: listing.status || "active",
@@ -165,6 +168,7 @@ export function AdminDashboard({ initialListings = [] }) {
       const payload = new FormData();
       payload.set("name", form.name);
       payload.set("price", form.price);
+      payload.set("quantity", form.quantity);
       payload.set("description", form.description);
       payload.set("condition", form.condition);
       payload.set("status", form.status);
@@ -267,6 +271,12 @@ export function AdminDashboard({ initialListings = [] }) {
             </button>
           </div>
         </div>
+        <nav className="admin-section-links" aria-label="Admin sections">
+          <Link href="/admin" aria-current="page">
+            Manual listings
+          </Link>
+          <Link href="/admin/orders">Orders</Link>
+        </nav>
 
         <form className="admin-form" onSubmit={onSubmit}>
           <div className="admin-grid">
@@ -282,6 +292,17 @@ export function AdminDashboard({ initialListings = [] }) {
                 step="0.01"
                 value={form.price}
                 onChange={(e) => onFieldChange("price", e.target.value)}
+                required
+              />
+            </label>
+            <label>
+              Quantity
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={form.quantity}
+                onChange={(e) => onFieldChange("quantity", e.target.value)}
                 required
               />
             </label>
@@ -367,7 +388,7 @@ export function AdminDashboard({ initialListings = [] }) {
         {message ? <p className="admin-success">{message}</p> : null}
         {error ? <p className="admin-error">{error}</p> : null}
 
-        <section className="admin-listings">
+        <section id="manual-listings" className="admin-listings">
           <h2>Manual Listings</h2>
           {isLoading ? <p className="muted-text">Loading listings...</p> : null}
           {!isLoading && error ? (
@@ -392,7 +413,8 @@ export function AdminDashboard({ initialListings = [] }) {
                   <div>
                     <strong>{listing.name}</strong>
                     <p className="muted-text">
-                      ${Number(listing.price || 0).toFixed(2)} | Postage: {listing.postageSize || "Not set"}
+                      ${Number(listing.price || 0).toFixed(2)} | Qty: {Math.max(0, Math.floor(Number(listing.quantity) || 0))} | Postage:{" "}
+                      {listing.postageSize || "Not set"}
                     </p>
                   </div>
                 </div>
