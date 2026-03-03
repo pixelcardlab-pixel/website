@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { formatCurrency } from "@/lib/currency";
 import { getStorefrontData } from "@/lib/storefront";
 import { ItemDetailGallery } from "@/components/shop/item-detail-gallery";
-import { hydrateListingLive } from "@/lib/trademe-live";
 import { ItemDetailActions } from "@/components/shop/item-detail-actions";
 import { ItemDetailShell } from "@/components/shop/item-detail-shell";
 
@@ -26,20 +25,18 @@ export default async function ItemDetailPage({ params }) {
     notFound();
   }
 
-  const liveItem = await hydrateListingLive(item);
-
-  const description = typeof liveItem.description === "string" ? liveItem.description.trim() : "";
-  const condition = liveItem?.details?.condition || (liveItem?.set === "Trade Me" ? "Used" : "Not specified");
-  const postageSize = formatPostageSize(liveItem?.postageSize);
-  const galleryImages = Array.isArray(liveItem.images) ? liveItem.images : [];
+  const description = typeof item.description === "string" ? item.description.trim() : "";
+  const condition = item?.details?.condition || "Not specified";
+  const postageSize = formatPostageSize(item?.postageSize);
+  const galleryImages = Array.isArray(item.images) ? item.images : [];
 
   return (
     <ItemDetailShell>
-        <ItemDetailGallery name={liveItem.name} image={liveItem.image} images={galleryImages} />
+        <ItemDetailGallery name={item.name} image={item.image} images={galleryImages} />
 
         <div className="detail-content">
-          <h1>{liveItem.name}</h1>
-          <p className="detail-price">{formatCurrency(liveItem.price || 0)}</p>
+          <h1>{item.name}</h1>
+          <p className="detail-price">{formatCurrency(item.price || 0)}</p>
           <div className="detail-table">
             <div className="detail-row">
               <strong>Details</strong>
@@ -48,7 +45,7 @@ export default async function ItemDetailPage({ params }) {
             <div className="detail-row">
               <strong>Description</strong>
               <span>
-                {description || liveItem.name}
+                {description || item.name}
                 {postageSize ? (
                   <>
                     <br />
@@ -58,7 +55,7 @@ export default async function ItemDetailPage({ params }) {
               </span>
             </div>
           </div>
-          <ItemDetailActions item={liveItem} />
+          <ItemDetailActions item={item} />
         </div>
     </ItemDetailShell>
   );

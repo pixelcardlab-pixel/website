@@ -31,15 +31,14 @@ function parseQuantity(value) {
 
 function normalizeSourceType(value) {
   const normalized = String(value || "").toLowerCase();
-  if (normalized === "manual" || normalized === "trademe") return normalized;
+  if (normalized === "manual") return normalized;
   return "";
 }
 
 function inferSourceType(item) {
   const explicit = normalizeSourceType(item?.sourceType);
   if (explicit) return explicit;
-  const productId = String(item?.id || "").trim();
-  return productId.startsWith("tm-") ? "trademe" : "manual";
+  return "manual";
 }
 
 function createPublicOrderId() {
@@ -91,20 +90,12 @@ export async function POST(request) {
         maxQuantity: parseQuantity(item.maxQuantity),
         unitAmount: Math.max(0, Number(item.price) || 0),
         name: item.name,
-        description: `${item.set || "Trade Me"} • ${item.rarity || "Listing"}`,
+        description: `${item.set || "Pixel Card Lab"} • ${item.rarity || "Listing"}`,
         postageSize: item.postageSize || ""
       }));
 
     if (!items.length) {
       return NextResponse.json({ error: "No valid items in cart." }, { status: 400 });
-    }
-
-    const invalidSingleQuantityItem = items.find((item) => item.sourceType !== "manual" && item.quantity > 1);
-    if (invalidSingleQuantityItem) {
-      return NextResponse.json(
-        { error: `${invalidSingleQuantityItem.name} only supports quantity 1.` },
-        { status: 409 }
-      );
     }
 
     const manualItems = items.filter((item) => item.sourceType === "manual" && item.productId);

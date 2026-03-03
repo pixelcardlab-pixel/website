@@ -12,7 +12,6 @@ export default async function HomePage() {
       products={data.products}
       recommendations={data.recommendations}
       testimonials={data.testimonials}
-      syncInfo={data.syncInfo}
     />
   );
 }

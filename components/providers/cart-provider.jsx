@@ -20,9 +20,8 @@ function inferMaxQuantity(item) {
 
 function inferSourceType(item) {
   const explicit = String(item?.sourceType || "").toLowerCase();
-  if (explicit === "manual" || explicit === "trademe") return explicit;
-  const id = String(item?.id || "");
-  return id.startsWith("tm-") ? "trademe" : "manual";
+  if (explicit === "manual") return explicit;
+  return "manual";
 }
 
 function sanitizeCartItem(item) {

@@ -1,16 +1,16 @@
 # PixelCardLab Shop (Next.js Scaffold)
 
-Next.js ecommerce scaffold for Pokemon card sales with Trade Me listing sync, cart, checkout, and item detail pages.
+Next.js ecommerce scaffold for Pokemon card sales with manual listings, cart, checkout, and item detail pages.
 
 ## Features
 
 - App Router Next.js project structure
-- Live listing sync from Trade Me member search URL
-- Sold-state tracking (items missing from latest sync are marked sold)
+- Manual listings powered by Supabase + admin dashboard
 - Item detail route: `/items/[id]`
 - Persistent local cart (browser localStorage)
-- Local checkout flow (stores placed orders in localStorage)
+- Local checkout flow
 - Stripe checkout handoff route (`/api/checkout/stripe`)
+- Stripe webhook route (`/api/stripe/webhook`) to mark orders paid
 
 ## Run Locally
 
@@ -28,32 +28,24 @@ npm run dev
 
 3. Open [http://localhost:3000](http://localhost:3000)
 
-## Trade Me Sync
-
-- Source URL default: `https://www.trademe.co.nz/a/search?member_listing=1438352`
-- Override with `.env.local`:
-
-```env
-TRADEME_MEMBER_SEARCH_URL=https://www.trademe.co.nz/a/search?member_listing=1438352
-```
-
-Implementation details:
-- Bootstraps Trade Me session cookies.
-- Calls Trade Me search JSON endpoint (`/v1/search/general.json`) directly.
-- Persists snapshot to `data/trademe-listings-cache.json`.
-- Marks previously-seen listings as `sold` when absent in current sync.
-
 ## Stripe Setup
 
 1. Copy `.env.example` to `.env.local`
 2. Add your Stripe secret key to `STRIPE_SECRET_KEY`
-3. (Optional) set `NEXT_PUBLIC_SITE_URL` for non-local environments
+3. Add your Stripe webhook signing secret to `STRIPE_WEBHOOK_SECRET`
+4. (Optional) set `NEXT_PUBLIC_SITE_URL` for non-local environments
 
 If `STRIPE_SECRET_KEY` is missing, local checkout still works and Stripe checkout returns a helpful error.
 
+To test webhooks locally with Stripe CLI:
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
 ## Manual Listings CMS (Supabase + Admin)
 
-This project now supports manual listings (in addition to Trade Me) via a lightweight password-protected dashboard at `/admin`.
+This project supports manual listings via a lightweight password-protected dashboard at `/admin`.
 
 ### 1) Configure environment variables
 
@@ -94,18 +86,19 @@ In Supabase Storage:
 3. Login with `ADMIN_PASSWORD`
 4. Create / edit / delete manual listings and upload images
 
-Manual listings are merged into the storefront alongside Trade Me listings.
+Manual listings are merged into the storefront alongside local fallback sample products.
 
 ## Important Files
 
 - `app/page.js`: storefront home page
 - `app/items/[id]/page.js`: item detail page
-- `lib/trademe.js`: Trade Me sync + sold tracking
 - `lib/storefront.js`: storefront data source orchestration
 - `app/admin/page.js`: password-protected CMS dashboard
 - `app/api/admin/manual-listings/route.js`: create/list manual listings
 - `app/api/admin/manual-listings/[id]/route.js`: update/delete manual listings
+- `app/api/admin/orders/route.js`: authenticated order list endpoint for admin dashboard
 - `supabase/manual-listings.sql`: Supabase table + trigger setup
 - `app/checkout/page.js`: checkout UI (local + Stripe trigger)
 - `app/api/checkout/stripe/route.js`: Stripe session creation API
+- `app/api/stripe/webhook/route.js`: Stripe webhook handler for payment completion
 - `components/providers/cart-provider.jsx`: cart state and persistence
