@@ -19,7 +19,7 @@ function parseStoredFavorites(raw) {
   }
 }
 
-export function ShopClient({ products, recommendations, testimonials, syncInfo }) {
+export function ShopClient({ products, recommendations, testimonials }) {
   const { addItem, itemCount, items } = useCart();
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -136,7 +136,6 @@ export function ShopClient({ products, recommendations, testimonials, syncInfo }
             </form>
           </div>
           <p className="hero-proof">NZ-based seller  ✦  Ships from Auckland  ✦  Trusted by collectors</p>
-          {syncInfo?.warning ? <p className="sync-warning">{syncInfo.warning}</p> : null}
         </div>
       </section>
 
@@ -144,16 +143,6 @@ export function ShopClient({ products, recommendations, testimonials, syncInfo }
         <div className="catalog-area">
           <div className="catalog-head">
             <h2>{showFavoritesOnly ? "Favourite Listings" : "Listings"}</h2>
-            <a
-              className="sync-link"
-              href="#"
-              onClick={(event) => {
-                event.preventDefault();
-                window.location.reload();
-              }}
-            >
-              Refresh Sync
-            </a>
           </div>
           <p className="shop-notice">
             Shipping only available in NZ, for international orders visit our{" "}

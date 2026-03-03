@@ -233,18 +233,6 @@ a {
   padding: 0;
 }
 
-.sync-note {
-  margin-top: 10px;
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.sync-warning {
-  margin-top: 6px;
-  font-size: 0.82rem;
-  color: #ffd3d3;
-}
-
 .search-bar {
   margin-top: 22px;
   display: flex;
@@ -348,18 +336,6 @@ a {
   padding: 10px 14px;
   font-weight: 600;
   color: #ff7a00;
-}
-
-.sync-link {
-  color: #ff9a1f;
-  font-size: 1rem;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.sync-link:hover {
-  color: #ffb143;
 }
 
 .product-grid {
